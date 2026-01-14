@@ -11,7 +11,11 @@ const KEYS = {
   CHECK_INS: '@fittrack:check_ins',
   COMPLETED_WORKOUTS: '@fittrack:completed_workouts',
   WORKOUTS: '@fittrack:workouts',
+  WORKOUTS_VERSION: '@fittrack:workouts_version',
 } as const;
+
+// Current workout library version
+const CURRENT_WORKOUTS_VERSION = 2; // Increased to 2 for new workouts
 
 // Default values
 export const DEFAULT_USER_PROFILE: UserProfile = {
@@ -133,13 +137,26 @@ export async function saveCompletedWorkout(workout: CompletedWorkout): Promise<v
 // Workouts Library
 export async function getWorkouts(): Promise<Workout[]> {
   try {
+    const versionStr = await AsyncStorage.getItem(KEYS.WORKOUTS_VERSION);
+    const storedVersion = versionStr ? parseInt(versionStr, 10) : 0;
+    
+    // Check if we need to update the workout library
+    if (storedVersion < CURRENT_WORKOUTS_VERSION) {
+      const defaultWorkouts = getDefaultWorkouts();
+      await saveWorkouts(defaultWorkouts);
+      await AsyncStorage.setItem(KEYS.WORKOUTS_VERSION, CURRENT_WORKOUTS_VERSION.toString());
+      return defaultWorkouts;
+    }
+    
     const data = await AsyncStorage.getItem(KEYS.WORKOUTS);
     if (data) {
       return JSON.parse(data);
     }
+    
     // If no workouts stored, initialize with default workouts
     const defaultWorkouts = getDefaultWorkouts();
     await saveWorkouts(defaultWorkouts);
+    await AsyncStorage.setItem(KEYS.WORKOUTS_VERSION, CURRENT_WORKOUTS_VERSION.toString());
     return defaultWorkouts;
   } catch (error) {
     console.error('Error loading workouts:', error);
@@ -150,8 +167,20 @@ export async function getWorkouts(): Promise<Workout[]> {
 export async function saveWorkouts(workouts: Workout[]): Promise<void> {
   try {
     await AsyncStorage.setItem(KEYS.WORKOUTS, JSON.stringify(workouts));
+    await AsyncStorage.setItem(KEYS.WORKOUTS_VERSION, CURRENT_WORKOUTS_VERSION.toString());
   } catch (error) {
     console.error('Error saving workouts:', error);
+  }
+}
+
+// Force update workouts to latest version
+export async function updateWorkoutsToLatest(): Promise<void> {
+  try {
+    const defaultWorkouts = getDefaultWorkouts();
+    await saveWorkouts(defaultWorkouts);
+    await AsyncStorage.setItem(KEYS.WORKOUTS_VERSION, CURRENT_WORKOUTS_VERSION.toString());
+  } catch (error) {
+    console.error('Error updating workouts:', error);
   }
 }
 

@@ -84,3 +84,8 @@
 - [x] Liegestütze-Workout erstellen
 - [x] Kniebeugen-Workout erstellen
 - [x] Bauchtrainer Ab Wheel-Workout erstellen
+
+## Bug-Fix: Neue Workouts nicht sichtbar
+- [x] Workout-Aktualisierungsfunktion implementieren
+- [x] Update-Button im Profil-Screen hinzufügen
+- [x] Versionierung für Workout-Bibliothek einführen

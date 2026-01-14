@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { getUserProfile, saveUserProfile, clearAllData } from '@/lib/storage';
+import { getUserProfile, saveUserProfile, clearAllData, updateWorkoutsToLatest } from '@/lib/storage';
 import type { UserProfile, ThemeMode } from '@/lib/types';
 
 export default function ProfileScreen() {
@@ -330,6 +330,34 @@ export default function ProfileScreen() {
                 <Text className="text-sm text-foreground">React Native & Expo</Text>
               </View>
             </View>
+          </View>
+        </Card>
+
+        {/* Workout Library Update */}
+        <Card>
+          <View className="gap-3">
+            <Text className="text-lg font-semibold text-foreground">
+              Workout-Bibliothek
+            </Text>
+            <Text className="text-sm text-muted">
+              Aktualisiere die Workout-Bibliothek, um neue Workouts zu erhalten.
+            </Text>
+            <Button
+              variant="primary"
+              onPress={async () => {
+                await updateWorkoutsToLatest();
+                if (Platform.OS === 'web') {
+                  window.alert('Workout-Bibliothek wurde aktualisiert! Bitte wechseln Sie zum Workouts-Tab, um die neuen Workouts zu sehen.');
+                } else {
+                  Alert.alert(
+                    'Aktualisierung erfolgreich',
+                    'Die Workout-Bibliothek wurde aktualisiert! Wechseln Sie zum Workouts-Tab, um die neuen Workouts zu sehen.'
+                  );
+                }
+              }}
+            >
+              Workouts aktualisieren
+            </Button>
           </View>
         </Card>
 
