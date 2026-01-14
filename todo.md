@@ -79,3 +79,8 @@
 - [x] Performance optimieren
 - [x] Checkpoint erstellen
 
+
+## Neue Workouts hinzufügen
+- [x] Liegestütze-Workout erstellen
+- [x] Kniebeugen-Workout erstellen
+- [x] Bauchtrainer Ab Wheel-Workout erstellen
