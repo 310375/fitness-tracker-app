@@ -103,3 +103,8 @@
 - [x] Workout-Löschfunktion mit Bestätigung
 - [x] Unterscheidung Standard vs. Custom Workouts
 - [x] UI-Integration im Workouts-Screen
+
+## Standard-Workouts entfernen
+- [x] Standard-Workouts aus der Workout-Bibliothek entfernen
+- [x] getWorkouts() so anpassen, dass nur Custom Workouts zurückgegeben werden
+- [x] Home Screen anpassen für leere Workout-Liste

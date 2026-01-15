@@ -15,7 +15,7 @@ const KEYS = {
 } as const;
 
 // Current workout library version
-const CURRENT_WORKOUTS_VERSION = 2; // Increased to 2 for new workouts
+const CURRENT_WORKOUTS_VERSION = 3; // Increased to 3 to remove default workouts
 
 // Default values
 export const DEFAULT_USER_PROFILE: UserProfile = {
@@ -245,8 +245,9 @@ export async function deleteWorkout(workoutId: string): Promise<void> {
 
 // Default workout library
 function getDefaultWorkouts(): Workout[] {
+  // No default workouts - users create their own
   return [
-    {
+    /*{
       id: 'workout-1',
       name: 'Schnelles Morgen-Workout',
       category: 'hiit',
@@ -406,7 +407,7 @@ function getDefaultWorkouts(): Workout[] {
         { name: 'Ab Wheel finale Runde', duration: 30, rest: 15 },
         { name: 'Core-Dehnung - Cobra Pose', duration: 45, rest: 0 },
       ],
-    },
+    },*/
   ];
 }
 
