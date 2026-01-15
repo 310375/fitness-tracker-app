@@ -177,8 +177,13 @@ export async function saveWorkouts(workouts: Workout[]): Promise<void> {
 // Force update workouts to latest version
 export async function updateWorkoutsToLatest(): Promise<void> {
   try {
+    const existingWorkouts = await getWorkouts();
+    // Keep only custom workouts
+    const customWorkouts = existingWorkouts.filter(w => w.isCustom);
+    // Add new default workouts
     const defaultWorkouts = getDefaultWorkouts();
-    await saveWorkouts(defaultWorkouts);
+    const updatedWorkouts = [...defaultWorkouts, ...customWorkouts];
+    await saveWorkouts(updatedWorkouts);
     await AsyncStorage.setItem(KEYS.WORKOUTS_VERSION, CURRENT_WORKOUTS_VERSION.toString());
   } catch (error) {
     console.error('Error updating workouts:', error);

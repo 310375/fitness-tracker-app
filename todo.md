@@ -141,3 +141,9 @@
 - [x] Fortschrittsbalken im Gewichtsverlauf-Screen
 - [x] Trendberechnung (durchschnittliche Änderung pro Woche)
 - [x] Geschätzte Erreichungszeit basierend auf Trend
+
+## KRITISCHER BUG - Datenverlust
+- [x] Ursache des Datenverlusts analysieren (Workouts und Fortschritte gelöscht)
+- [x] Storage-Funktionen auf versehentliches Löschen prüfen
+- [ ] Daten-Backup-Mechanismus implementieren
+- [x] Migrations-Sicherheit verbessern
