@@ -120,3 +120,10 @@
 
 ## UI-Anpassung
 - [x] + Button von rund zu quadratisch ändern
+
+## Personalisierte Benutzerdaten
+- [x] UserProfile-Interface um Alter, Gewicht, Körpergröße, Geschlecht erweitern
+- [x] Storage-Funktionen für Benutzerdaten
+- [x] Profil-Screen mit Eingabefeldern erweitern
+- [x] Kalorienberechnung mit personalisierten Daten (BMR-Formel)
+- [x] BMI-Berechnung und Anzeige

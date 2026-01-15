@@ -45,6 +45,10 @@ export interface CheckInData {
 
 export interface UserProfile {
   name: string;
+  age?: number; // years
+  weight?: number; // kg or lbs depending on unitSystem
+  height?: number; // cm or inches depending on unitSystem
+  gender?: 'male' | 'female' | 'other';
   weeklyGoal: number; // workouts per week
   theme: ThemeMode;
   notifications: boolean;

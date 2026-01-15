@@ -110,6 +110,93 @@ export default function ProfileScreen() {
               )}
             </View>
 
+            <View className="gap-2">
+              <Text className="text-sm text-muted">Geschlecht</Text>
+              {isEditing ? (
+                <View className="flex-row gap-2">
+                  {(['male', 'female', 'other'] as const).map((g) => (
+                    <Pressable
+                      key={g}
+                      onPress={() => setProfile({ ...profile, gender: g })}
+                      className={`flex-1 py-2 px-3 rounded-lg border ${
+                        profile.gender === g ? 'bg-primary border-primary' : 'bg-surface border-border'
+                      }`}
+                    >
+                      <Text
+                        className={`text-center text-sm ${
+                          profile.gender === g ? 'text-white font-semibold' : 'text-foreground'
+                        }`}
+                      >
+                        {g === 'male' ? 'Männlich' : g === 'female' ? 'Weiblich' : 'Divers'}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              ) : (
+                <Text className="text-base text-foreground">
+                  {profile.gender === 'male' ? 'Männlich' : profile.gender === 'female' ? 'Weiblich' : profile.gender === 'other' ? 'Divers' : 'Nicht angegeben'}
+                </Text>
+              )}
+            </View>
+
+            <View className="flex-row gap-3">
+              <View className="flex-1 gap-2">
+                <Text className="text-sm text-muted">Alter</Text>
+                {isEditing ? (
+                  <TextInput
+                    value={profile.age?.toString() || ''}
+                    onChangeText={(text) => setProfile({ ...profile, age: parseInt(text) || undefined })}
+                    keyboardType="numeric"
+                    placeholder="25"
+                    className="text-base text-foreground bg-surface rounded-lg px-3 py-2 border border-border"
+                    style={{ outlineStyle: 'none' } as any}
+                  />
+                ) : (
+                  <Text className="text-base text-foreground">{profile.age || '-'} Jahre</Text>
+                )}
+              </View>
+
+              <View className="flex-1 gap-2">
+                <Text className="text-sm text-muted">
+                  Gewicht ({profile.unitSystem === 'metric' ? 'kg' : 'lbs'})
+                </Text>
+                {isEditing ? (
+                  <TextInput
+                    value={profile.weight?.toString() || ''}
+                    onChangeText={(text) => setProfile({ ...profile, weight: parseFloat(text) || undefined })}
+                    keyboardType="decimal-pad"
+                    placeholder="70"
+                    className="text-base text-foreground bg-surface rounded-lg px-3 py-2 border border-border"
+                    style={{ outlineStyle: 'none' } as any}
+                  />
+                ) : (
+                  <Text className="text-base text-foreground">
+                    {profile.weight || '-'} {profile.unitSystem === 'metric' ? 'kg' : 'lbs'}
+                  </Text>
+                )}
+              </View>
+            </View>
+
+            <View className="gap-2">
+              <Text className="text-sm text-muted">
+                Körpergröße ({profile.unitSystem === 'metric' ? 'cm' : 'in'})
+              </Text>
+              {isEditing ? (
+                <TextInput
+                  value={profile.height?.toString() || ''}
+                  onChangeText={(text) => setProfile({ ...profile, height: parseFloat(text) || undefined })}
+                  keyboardType="decimal-pad"
+                  placeholder="175"
+                  className="text-base text-foreground bg-surface rounded-lg px-3 py-2 border border-border"
+                  style={{ outlineStyle: 'none' } as any}
+                />
+              ) : (
+                <Text className="text-base text-foreground">
+                  {profile.height || '-'} {profile.unitSystem === 'metric' ? 'cm' : 'in'}
+                </Text>
+              )}
+            </View>
+
             {isEditing && (
               <Button variant="primary" onPress={handleSave}>
                 Speichern
@@ -117,6 +204,57 @@ export default function ProfileScreen() {
             )}
           </View>
         </Card>
+
+        {/* Health Stats */}
+        {profile.weight && profile.height && profile.age && profile.gender && (
+          <Card>
+            <View className="gap-4">
+              <Text className="text-lg font-semibold text-foreground">
+                Gesundheitsdaten
+              </Text>
+              
+              <View className="flex-row gap-3">
+                <View className="flex-1 bg-surface rounded-lg p-3">
+                  <Text className="text-xs text-muted mb-1">BMI</Text>
+                  <Text className="text-2xl font-bold text-foreground">
+                    {(() => {
+                      const { calculateBMI, convertWeight, convertHeight } = require('@/lib/health-calculations');
+                      const weightInKg = profile.unitSystem === 'imperial' ? convertWeight(profile.weight!, 'imperial', 'metric') : profile.weight!;
+                      const heightInCm = profile.unitSystem === 'imperial' ? convertHeight(profile.height!, 'imperial', 'metric') : profile.height!;
+                      return calculateBMI(weightInKg, heightInCm).toFixed(1);
+                    })()}
+                  </Text>
+                  <Text className="text-xs text-muted mt-1">
+                    {(() => {
+                      const { calculateBMI, getBMICategory, convertWeight, convertHeight } = require('@/lib/health-calculations');
+                      const weightInKg = profile.unitSystem === 'imperial' ? convertWeight(profile.weight!, 'imperial', 'metric') : profile.weight!;
+                      const heightInCm = profile.unitSystem === 'imperial' ? convertHeight(profile.height!, 'imperial', 'metric') : profile.height!;
+                      const bmi = calculateBMI(weightInKg, heightInCm);
+                      return getBMICategory(bmi);
+                    })()}
+                  </Text>
+                </View>
+
+                <View className="flex-1 bg-surface rounded-lg p-3">
+                  <Text className="text-xs text-muted mb-1">Grundumsatz</Text>
+                  <Text className="text-2xl font-bold text-foreground">
+                    {(() => {
+                      const { calculateBMR, convertWeight, convertHeight } = require('@/lib/health-calculations');
+                      const weightInKg = profile.unitSystem === 'imperial' ? convertWeight(profile.weight!, 'imperial', 'metric') : profile.weight!;
+                      const heightInCm = profile.unitSystem === 'imperial' ? convertHeight(profile.height!, 'imperial', 'metric') : profile.height!;
+                      return Math.round(calculateBMR(weightInKg, heightInCm, profile.age!, profile.gender!));
+                    })()}
+                  </Text>
+                  <Text className="text-xs text-muted mt-1">kcal/Tag</Text>
+                </View>
+              </View>
+
+              <Text className="text-xs text-muted">
+                Der Grundumsatz (BMR) ist die Energie, die dein Körper in Ruhe verbraucht.
+              </Text>
+            </View>
+          </Card>
+        )}
 
         {/* Goals */}
         <Card>
