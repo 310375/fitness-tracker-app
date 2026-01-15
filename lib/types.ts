@@ -21,6 +21,8 @@ export interface Workout {
   duration: number; // total minutes
   exercises: Exercise[];
   description?: string;
+  isCustom?: boolean; // true for user-created workouts
+  createdAt?: string; // ISO date string
 }
 
 export interface CompletedWorkout {

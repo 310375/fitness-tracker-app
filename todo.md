@@ -89,3 +89,17 @@
 - [x] Workout-Aktualisierungsfunktion implementieren
 - [x] Update-Button im Profil-Screen hinzufügen
 - [x] Versionierung für Workout-Bibliothek einführen
+
+## QR-Code Problem
+- [x] QR-Code für mobile Nutzung generieren
+- [x] Alternative Zugriffsmethoden dokumentieren
+
+## Workout-Verwaltung
+- [x] Datenmodell für benutzerdefinierte Workouts erweitern
+- [x] Storage-Funktionen für Custom Workouts
+- [x] Workout-Erstellungs-Screen mit Formular
+- [x] Übungen dynamisch hinzufügen/entfernen
+- [x] Workout-Bearbeitungsfunktion
+- [x] Workout-Löschfunktion mit Bestätigung
+- [x] Unterscheidung Standard vs. Custom Workouts
+- [x] UI-Integration im Workouts-Screen

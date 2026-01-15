@@ -184,6 +184,65 @@ export async function updateWorkoutsToLatest(): Promise<void> {
   }
 }
 
+// Add a custom workout
+export async function addCustomWorkout(workout: Omit<Workout, 'id' | 'isCustom' | 'createdAt'>): Promise<Workout> {
+  try {
+    const workouts = await getWorkouts();
+    const newWorkout: Workout = {
+      ...workout,
+      id: `custom-${Date.now()}`,
+      isCustom: true,
+      createdAt: new Date().toISOString(),
+    };
+    workouts.push(newWorkout);
+    await saveWorkouts(workouts);
+    return newWorkout;
+  } catch (error) {
+    console.error('Error adding custom workout:', error);
+    throw error;
+  }
+}
+
+// Update an existing workout
+export async function updateWorkout(workoutId: string, updates: Partial<Workout>): Promise<void> {
+  try {
+    const workouts = await getWorkouts();
+    const index = workouts.findIndex(w => w.id === workoutId);
+    if (index === -1) {
+      throw new Error('Workout not found');
+    }
+    // Only allow editing custom workouts
+    if (!workouts[index].isCustom) {
+      throw new Error('Cannot edit default workouts');
+    }
+    workouts[index] = { ...workouts[index], ...updates };
+    await saveWorkouts(workouts);
+  } catch (error) {
+    console.error('Error updating workout:', error);
+    throw error;
+  }
+}
+
+// Delete a custom workout
+export async function deleteWorkout(workoutId: string): Promise<void> {
+  try {
+    const workouts = await getWorkouts();
+    const workout = workouts.find(w => w.id === workoutId);
+    if (!workout) {
+      throw new Error('Workout not found');
+    }
+    // Only allow deleting custom workouts
+    if (!workout.isCustom) {
+      throw new Error('Cannot delete default workouts');
+    }
+    const filtered = workouts.filter(w => w.id !== workoutId);
+    await saveWorkouts(filtered);
+  } catch (error) {
+    console.error('Error deleting workout:', error);
+    throw error;
+  }
+}
+
 // Default workout library
 function getDefaultWorkouts(): Workout[] {
   return [

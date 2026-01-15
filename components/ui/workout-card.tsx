@@ -8,6 +8,7 @@ import type { Workout } from '@/lib/types';
 export interface WorkoutCardProps {
   workout: Workout;
   onPress: () => void;
+  onLongPress?: () => void;
 }
 
 const categoryIcons: Record<string, string> = {
@@ -26,7 +27,7 @@ const difficultyColors: Record<string, string> = {
 /**
  * A card component for displaying workout information
  */
-export function WorkoutCard({ workout, onPress }: WorkoutCardProps) {
+export function WorkoutCard({ workout, onPress, onLongPress }: WorkoutCardProps) {
   const colors = useColors();
 
   const handlePress = () => {
@@ -36,12 +37,22 @@ export function WorkoutCard({ workout, onPress }: WorkoutCardProps) {
     onPress();
   };
 
+  const handleLongPress = () => {
+    if (onLongPress) {
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
+      onLongPress();
+    }
+  };
+
   const categoryIcon = categoryIcons[workout.category] || 'fitness-center';
   const difficultyColor = difficultyColors[workout.difficulty] || colors.muted;
 
   return (
     <Pressable
       onPress={handlePress}
+      onLongPress={handleLongPress}
       style={({ pressed }) => [
         {
           opacity: pressed ? 0.7 : 1,
@@ -55,9 +66,16 @@ export function WorkoutCard({ workout, onPress }: WorkoutCardProps) {
           </View>
           
           <View className="flex-1">
-            <Text className="text-lg font-semibold text-foreground mb-1">
-              {workout.name}
-            </Text>
+            <View className="flex-row items-center gap-2 mb-1">
+              <Text className="text-lg font-semibold text-foreground">
+                {workout.name}
+              </Text>
+              {workout.isCustom && (
+                <View className="px-2 py-0.5 bg-primary/20 rounded">
+                  <Text className="text-xs font-medium text-primary">Eigenes</Text>
+                </View>
+              )}
+            </View>
             <View className="flex-row items-center gap-3">
               <Text className="text-sm text-muted">
                 {workout.duration} Min

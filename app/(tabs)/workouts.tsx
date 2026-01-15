@@ -1,8 +1,9 @@
-import { ScrollView, Text, View, TextInput, Pressable, Platform } from 'react-native';
+import { ScrollView, Text, View, TextInput, FlatList, Pressable, TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { WorkoutCard } from '@/components/ui/workout-card';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
 import { getWorkouts } from '@/lib/storage';
 import type { Workout, WorkoutCategory } from '@/lib/types';
@@ -62,12 +63,32 @@ export default function WorkoutsScreen() {
     router.push(`/workout-session?id=${workout.id}`);
   };
 
+  const handleWorkoutLongPress = (workout: Workout) => {
+    // Only allow editing custom workouts
+    if (workout.isCustom) {
+      router.push(`/edit-workout?id=${workout.id}`);
+    }
+  };
+
+  const handleCreateWorkout = () => {
+    router.push('/create-workout');
+  };
+
   return (
     <ScreenContainer>
       <View className="flex-1">
         {/* Header */}
         <View className="px-4 pt-4 pb-3">
-          <Text className="text-3xl font-bold text-foreground mb-4">Workouts</Text>
+          <View className="flex-row items-center justify-between mb-4">
+            <Text className="text-3xl font-bold text-foreground">Workouts</Text>
+            <TouchableOpacity
+              onPress={handleCreateWorkout}
+              className="bg-primary rounded-full w-10 h-10 items-center justify-center"
+              activeOpacity={0.7}
+            >
+              <Text className="text-white text-2xl font-bold">+</Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Search Bar */}
           <View className="bg-surface rounded-xl px-4 py-3 border border-border mb-4">
@@ -130,6 +151,7 @@ export default function WorkoutsScreen() {
                 key={workout.id}
                 workout={workout}
                 onPress={() => handleWorkoutPress(workout)}
+                onLongPress={() => handleWorkoutLongPress(workout)}
               />
             ))
           ) : (
