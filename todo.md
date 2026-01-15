@@ -117,3 +117,6 @@
 ## Kritischer Bug
 - [x] Workouts werden nach dem Speichern nicht in der Liste angezeigt
 - [x] Speicher- und Ladelogik überprüfen und reparieren
+
+## UI-Anpassung
+- [x] + Button von rund zu quadratisch ändern

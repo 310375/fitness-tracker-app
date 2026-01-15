@@ -87,7 +87,7 @@ export default function WorkoutsScreen() {
             <Text className="text-3xl font-bold text-foreground">Workouts</Text>
             <TouchableOpacity
               onPress={handleCreateWorkout}
-              className="bg-primary rounded-full w-14 h-14 items-center justify-center shadow-lg"
+              className="bg-primary rounded-xl w-14 h-14 items-center justify-center shadow-lg"
               activeOpacity={0.7}
             >
               <Text className="text-white text-4xl font-bold leading-none">+</Text>
