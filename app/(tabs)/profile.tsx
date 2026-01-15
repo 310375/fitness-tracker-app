@@ -1,5 +1,6 @@
-import { ScrollView, Text, View, TextInput, Switch, Pressable, Alert, Platform } from 'react-native';
+import { View, Text, ScrollView, TextInput, Pressable, Alert, Switch, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
+import { router } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -252,6 +253,13 @@ export default function ProfileScreen() {
               <Text className="text-xs text-muted">
                 Der Grundumsatz (BMR) ist die Energie, die dein Körper in Ruhe verbraucht.
               </Text>
+
+              <Button
+                variant="secondary"
+                onPress={() => router.push('/weight-tracking')}
+              >
+                Gewichtsverlauf anzeigen
+              </Button>
             </View>
           </Card>
         )}

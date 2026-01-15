@@ -127,3 +127,10 @@
 - [x] Profil-Screen mit Eingabefeldern erweitern
 - [x] Kalorienberechnung mit personalisierten Daten (BMR-Formel)
 - [x] BMI-Berechnung und Anzeige
+
+## Gewichtsverlauf-Tracking
+- [x] WeightEntry-Interface erstellen
+- [x] Storage-Funktionen für Gewichtseinträge
+- [x] Gewichtseingabe-Modal im Profil-Screen
+- [x] Gewichtsverlauf-Diagramm (Liniendiagramm)
+- [x] Statistiken (Durchschnitt, Trend, Änderung)

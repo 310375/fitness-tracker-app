@@ -3,7 +3,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { UserProfile, CheckInData, CompletedWorkout, Workout } from './types';
+import type { UserProfile, CheckInData, CompletedWorkout, Workout, WeightEntry } from './types';
 
 // Storage keys
 const KEYS = {
@@ -12,6 +12,7 @@ const KEYS = {
   COMPLETED_WORKOUTS: '@fittrack:completed_workouts',
   WORKOUTS: '@fittrack:workouts',
   WORKOUTS_VERSION: '@fittrack:workouts_version',
+  WEIGHT_ENTRIES: '@fittrack:weight_entries',
 } as const;
 
 // Current workout library version
@@ -422,5 +423,67 @@ export async function clearAllData(): Promise<void> {
     ]);
   } catch (error) {
     console.error('Error clearing data:', error);
+  }
+}
+
+// ========================================
+// Weight Entries
+// ========================================
+
+export async function getWeightEntries(): Promise<WeightEntry[]> {
+  try {
+    const data = await AsyncStorage.getItem(KEYS.WEIGHT_ENTRIES);
+    if (data) {
+      const entries: WeightEntry[] = JSON.parse(data);
+      // Sort by date descending (newest first)
+      return entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }
+    return [];
+  } catch (error) {
+    console.error('Error loading weight entries:', error);
+    return [];
+  }
+}
+
+export async function addWeightEntry(weight: number, note?: string): Promise<WeightEntry> {
+  try {
+    const entries = await getWeightEntries();
+    const newEntry: WeightEntry = {
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      weight,
+      note,
+    };
+    entries.push(newEntry);
+    await AsyncStorage.setItem(KEYS.WEIGHT_ENTRIES, JSON.stringify(entries));
+    return newEntry;
+  } catch (error) {
+    console.error('Error adding weight entry:', error);
+    throw error;
+  }
+}
+
+export async function deleteWeightEntry(id: string): Promise<void> {
+  try {
+    const entries = await getWeightEntries();
+    const filtered = entries.filter((entry) => entry.id !== id);
+    await AsyncStorage.setItem(KEYS.WEIGHT_ENTRIES, JSON.stringify(filtered));
+  } catch (error) {
+    console.error('Error deleting weight entry:', error);
+    throw error;
+  }
+}
+
+export async function updateWeightEntry(id: string, weight: number, note?: string): Promise<void> {
+  try {
+    const entries = await getWeightEntries();
+    const index = entries.findIndex((entry) => entry.id === id);
+    if (index !== -1) {
+      entries[index] = { ...entries[index], weight, note };
+      await AsyncStorage.setItem(KEYS.WEIGHT_ENTRIES, JSON.stringify(entries));
+    }
+  } catch (error) {
+    console.error('Error updating weight entry:', error);
+    throw error;
   }
 }

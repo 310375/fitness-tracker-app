@@ -79,3 +79,10 @@ export interface WeeklyProgress {
   minutes: number;
   calories: number;
 }
+
+export interface WeightEntry {
+  id: string;
+  date: string; // ISO date string
+  weight: number; // kg or lbs depending on user's unitSystem
+  note?: string; // optional note
+}
