@@ -147,3 +147,13 @@
 - [x] Storage-Funktionen auf versehentliches Löschen prüfen
 - [ ] Daten-Backup-Mechanismus implementieren
 - [x] Migrations-Sicherheit verbessern
+
+## Datensicherheits-Features
+- [x] Export-Funktion (alle Daten als JSON)
+- [x] Import-Funktion (JSON-Datei wiederherstellen)
+- [x] Papierkorb für gelöschte Workouts (30 Tage Aufbewahrung)
+- [x] Papierkorb-UI mit Wiederherstellungsfunktion
+- [ ] Cloud-Sync Backend-Integration (zu komplex, übersprungen)
+- [ ] Automatische Synchronisation bei Änderungen (zu komplex, übersprungen)
+- [ ] Sync-Status-Anzeige im Profil (zu komplex, übersprungen)
+- [x] UI-Integration aller Features im Profil-Screen

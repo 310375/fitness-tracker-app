@@ -13,6 +13,7 @@ const KEYS = {
   WORKOUTS: '@fittrack:workouts',
   WORKOUTS_VERSION: '@fittrack:workouts_version',
   WEIGHT_ENTRIES: '@fittrack:weight_entries',
+  DELETED_WORKOUTS: '@fittrack:deleted_workouts',
 } as const;
 
 // Current workout library version
@@ -229,24 +230,9 @@ export async function updateWorkout(workoutId: string, updates: Partial<Workout>
   }
 }
 
-// Delete a custom workout
+// Delete a workout (moves to trash)
 export async function deleteWorkout(workoutId: string): Promise<void> {
-  try {
-    const workouts = await getWorkouts();
-    const workout = workouts.find(w => w.id === workoutId);
-    if (!workout) {
-      throw new Error('Workout not found');
-    }
-    // Only allow deleting custom workouts
-    if (!workout.isCustom) {
-      throw new Error('Cannot delete default workouts');
-    }
-    const filtered = workouts.filter(w => w.id !== workoutId);
-    await saveWorkouts(filtered);
-  } catch (error) {
-    console.error('Error deleting workout:', error);
-    throw error;
-  }
+  return moveWorkoutToTrash(workoutId);
 }
 
 // Default workout library
@@ -489,6 +475,115 @@ export async function updateWeightEntry(id: string, weight: number, note?: strin
     }
   } catch (error) {
     console.error('Error updating weight entry:', error);
+    throw error;
+  }
+}
+
+
+// Trash/Recycle Bin for deleted workouts
+export async function getDeletedWorkouts(): Promise<import('./types').DeletedWorkout[]> {
+  try {
+    const data = await AsyncStorage.getItem(KEYS.DELETED_WORKOUTS);
+    if (!data) return [];
+    
+    const deletedWorkouts: import('./types').DeletedWorkout[] = JSON.parse(data);
+    
+    // Remove expired items (older than 30 days)
+    const now = new Date();
+    const validWorkouts = deletedWorkouts.filter(item => {
+      const expiresAt = new Date(item.expiresAt);
+      return expiresAt > now;
+    });
+    
+    // Save cleaned list if any were removed
+    if (validWorkouts.length !== deletedWorkouts.length) {
+      await AsyncStorage.setItem(KEYS.DELETED_WORKOUTS, JSON.stringify(validWorkouts));
+    }
+    
+    return validWorkouts;
+  } catch (error) {
+    console.error('Error loading deleted workouts:', error);
+    return [];
+  }
+}
+
+export async function moveWorkoutToTrash(workoutId: string): Promise<void> {
+  try {
+    const workouts = await getWorkouts();
+    const workout = workouts.find(w => w.id === workoutId);
+    
+    if (!workout) {
+      throw new Error('Workout not found');
+    }
+    
+    // Only custom workouts can be deleted
+    if (!workout.isCustom) {
+      throw new Error('Cannot delete default workouts');
+    }
+    
+    // Add to trash
+    const deletedWorkouts = await getDeletedWorkouts();
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+    
+    deletedWorkouts.push({
+      workout,
+      deletedAt: now.toISOString(),
+      expiresAt: expiresAt.toISOString(),
+    });
+    
+    await AsyncStorage.setItem(KEYS.DELETED_WORKOUTS, JSON.stringify(deletedWorkouts));
+    
+    // Remove from active workouts
+    const updatedWorkouts = workouts.filter(w => w.id !== workoutId);
+    await saveWorkouts(updatedWorkouts);
+  } catch (error) {
+    console.error('Error moving workout to trash:', error);
+    throw error;
+  }
+}
+
+export async function restoreWorkoutFromTrash(deletedWorkoutId: string): Promise<void> {
+  try {
+    const deletedWorkouts = await getDeletedWorkouts();
+    const index = deletedWorkouts.findIndex(item => item.workout.id === deletedWorkoutId);
+    
+    if (index === -1) {
+      throw new Error('Deleted workout not found');
+    }
+    
+    const { workout } = deletedWorkouts[index];
+    
+    // Restore to active workouts
+    const workouts = await getWorkouts();
+    workouts.push(workout);
+    await saveWorkouts(workouts);
+    
+    // Remove from trash
+    deletedWorkouts.splice(index, 1);
+    await AsyncStorage.setItem(KEYS.DELETED_WORKOUTS, JSON.stringify(deletedWorkouts));
+  } catch (error) {
+    console.error('Error restoring workout from trash:', error);
+    throw error;
+  }
+}
+
+export async function permanentlyDeleteWorkout(deletedWorkoutId: string): Promise<void> {
+  try {
+    const deletedWorkouts = await getDeletedWorkouts();
+    const updatedWorkouts = deletedWorkouts.filter(item => item.workout.id !== deletedWorkoutId);
+    await AsyncStorage.setItem(KEYS.DELETED_WORKOUTS, JSON.stringify(updatedWorkouts));
+  } catch (error) {
+    console.error('Error permanently deleting workout:', error);
+    throw error;
+  }
+}
+
+export async function emptyTrash(): Promise<void> {
+  try {
+    await AsyncStorage.setItem(KEYS.DELETED_WORKOUTS, JSON.stringify([]));
+  } catch (error) {
+    console.error('Error emptying trash:', error);
     throw error;
   }
 }

@@ -8,6 +8,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { getUserProfile, saveUserProfile, clearAllData, updateWorkoutsToLatest } from '@/lib/storage';
+import { exportData, importData } from '@/lib/backup';
 import type { UserProfile, ThemeMode } from '@/lib/types';
 
 export default function ProfileScreen() {
@@ -527,12 +528,84 @@ export default function ProfileScreen() {
           </View>
         </Card>
 
-        {/* Danger Zone */}
-        <Card className="border-error/30">
+        {/* Data Management */}
+        <Card>
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-error">
-              Gefahrenzone
-            </Text>
+            <Text className="text-lg font-semibold text-foreground">Daten-Management</Text>
+            
+            <View className="gap-2">
+              <Text className="text-sm font-semibold text-foreground">Backup & Wiederherstellung</Text>
+              <Text className="text-sm text-muted">
+                Exportiere alle deine Daten als JSON-Datei oder importiere ein vorheriges Backup.
+              </Text>
+              <View className="flex-row gap-2">
+                <Button
+                  variant="primary"
+                  onPress={async () => {
+                    try {
+                      await exportData();
+                      if (Platform.OS === 'web') {
+                        // Success message not needed on web as download starts
+                      } else {
+                        Alert.alert('Erfolg', 'Daten wurden exportiert');
+                      }
+                    } catch (error) {
+                      if (Platform.OS === 'web') {
+                        window.alert('Fehler beim Exportieren');
+                      } else {
+                        Alert.alert('Fehler', 'Fehler beim Exportieren');
+                      }
+                    }
+                  }}
+                  className="flex-1"
+                >
+                  Exportieren
+                </Button>
+                <Button
+                  variant="secondary"
+                  onPress={async () => {
+                    try {
+                      await importData();
+                      await loadProfile();
+                      if (Platform.OS === 'web') {
+                        window.alert('Daten wurden erfolgreich importiert');
+                      } else {
+                        Alert.alert('Erfolg', 'Daten wurden erfolgreich importiert');
+                      }
+                    } catch (error) {
+                      if (Platform.OS === 'web') {
+                        window.alert('Fehler beim Importieren');
+                      } else {
+                        Alert.alert('Fehler', 'Fehler beim Importieren');
+                      }
+                    }
+                  }}
+                  className="flex-1"
+                >
+                  Importieren
+                </Button>
+              </View>
+            </View>
+
+            <View className="gap-2 mt-2">
+              <Text className="text-sm font-semibold text-foreground">Papierkorb</Text>
+              <Text className="text-sm text-muted">
+                Gelöschte Workouts werden 30 Tage lang aufbewahrt und können wiederhergestellt werden.
+              </Text>
+              <Button
+                variant="outline"
+                onPress={() => router.push('/trash')}
+              >
+                Papierkorb anzeigen
+              </Button>
+            </View>
+          </View>
+        </Card>
+
+        {/* Danger Zone */}
+        <Card className="bg-error/10">
+          <View className="gap-3">
+            <Text className="text-lg font-semibold text-error">Gefahrenzone</Text>
             <Text className="text-sm text-muted">
               Das Zurücksetzen löscht alle deine Workouts, Check-ins und Fortschritte unwiderruflich.
             </Text>

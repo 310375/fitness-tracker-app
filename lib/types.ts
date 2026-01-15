@@ -87,3 +87,9 @@ export interface WeightEntry {
   weight: number; // kg or lbs depending on user's unitSystem
   note?: string; // optional note
 }
+
+export interface DeletedWorkout {
+  workout: Workout;
+  deletedAt: string; // ISO date string
+  expiresAt: string; // ISO date string (30 days after deletion)
+}
