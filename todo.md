@@ -113,3 +113,7 @@
 - [x] Bug-Fix: Gespeicherte Workouts werden nicht angezeigt
 - [x] Wiederholungsanzahl-Option zu Übungen hinzufügen (zusätzlich zur Dauer)
 - [x] + Button im Workouts-Screen vergrößern
+
+## Kritischer Bug
+- [x] Workouts werden nach dem Speichern nicht in der Liste angezeigt
+- [x] Speicher- und Ladelogik überprüfen und reparieren

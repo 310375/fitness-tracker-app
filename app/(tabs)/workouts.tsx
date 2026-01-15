@@ -1,6 +1,8 @@
 import { ScrollView, Text, View, TextInput, FlatList, Pressable, TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { WorkoutCard } from '@/components/ui/workout-card';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -24,9 +26,11 @@ export default function WorkoutsScreen() {
   const [selectedCategory, setSelectedCategory] = useState<WorkoutCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    loadWorkouts();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadWorkouts();
+    }, [])
+  );
 
   useEffect(() => {
     filterWorkouts();
