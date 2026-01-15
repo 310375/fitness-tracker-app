@@ -108,3 +108,8 @@
 - [x] Standard-Workouts aus der Workout-Bibliothek entfernen
 - [x] getWorkouts() so anpassen, dass nur Custom Workouts zurückgegeben werden
 - [x] Home Screen anpassen für leere Workout-Liste
+
+## Bug-Fixes und Verbesserungen
+- [x] Bug-Fix: Gespeicherte Workouts werden nicht angezeigt
+- [x] Wiederholungsanzahl-Option zu Übungen hinzufügen (zusätzlich zur Dauer)
+- [x] + Button im Workouts-Screen vergrößern

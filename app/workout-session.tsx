@@ -103,7 +103,7 @@ export default function WorkoutSessionScreen() {
       const nextIndex = currentExerciseIndex + 1;
       setCurrentExerciseIndex(nextIndex);
       setState('exercise');
-      setTimeRemaining(workout.exercises[nextIndex].duration);
+      setTimeRemaining(workout.exercises[nextIndex].duration || 30);
     } else {
       // Workout completed
       setState('completed');
@@ -115,7 +115,7 @@ export default function WorkoutSessionScreen() {
     if (!workout || workout.exercises.length === 0) return;
     startTimeRef.current = Date.now();
     setState('exercise');
-    setTimeRemaining(workout.exercises[0].duration);
+    setTimeRemaining(workout.exercises[0].duration || 30);
   };
 
   const handlePause = () => {
@@ -277,6 +277,11 @@ export default function WorkoutSessionScreen() {
                 <Text className="text-3xl font-bold text-foreground text-center">
                   {currentExercise.name}
                 </Text>
+                {currentExercise.reps && currentExercise.reps > 0 && (
+                  <Text className="text-lg text-muted">
+                    {currentExercise.reps} Wiederholungen
+                  </Text>
+                )}
                 {state === 'paused' && (
                   <Text className="text-base text-warning">Pausiert</Text>
                 )}

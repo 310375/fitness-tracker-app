@@ -80,7 +80,7 @@ export default function EditWorkoutScreen() {
   };
 
   const calculateDuration = () => {
-    const totalSeconds = exercises.reduce((sum, ex) => sum + ex.duration + ex.rest, 0);
+    const totalSeconds = exercises.reduce((sum, ex) => sum + (ex.duration || 0) + ex.rest, 0);
     return Math.ceil(totalSeconds / 60);
   };
 
@@ -314,24 +314,38 @@ export default function EditWorkoutScreen() {
                   <View className="flex-1 gap-1">
                     <Text className="text-xs text-muted">Dauer (Sek.)</Text>
                     <TextInput
-                      value={exercise.duration.toString()}
+                      value={(exercise.duration || 0).toString()}
                       onChangeText={(text) => updateExerciseField(index, 'duration', parseInt(text) || 0)}
                       keyboardType="numeric"
+                      placeholder="30"
                       className="text-base text-foreground bg-background rounded-lg px-3 py-2 border border-border"
                       style={{ outlineStyle: 'none' } as any}
                     />
                   </View>
 
                   <View className="flex-1 gap-1">
-                    <Text className="text-xs text-muted">Pause (Sek.)</Text>
+                    <Text className="text-xs text-muted">Wiederholungen</Text>
                     <TextInput
-                      value={exercise.rest.toString()}
-                      onChangeText={(text) => updateExerciseField(index, 'rest', parseInt(text) || 0)}
+                      value={(exercise.reps || 0).toString()}
+                      onChangeText={(text) => updateExerciseField(index, 'reps', parseInt(text) || 0)}
                       keyboardType="numeric"
+                      placeholder="10"
                       className="text-base text-foreground bg-background rounded-lg px-3 py-2 border border-border"
                       style={{ outlineStyle: 'none' } as any}
                     />
                   </View>
+                </View>
+
+                <View className="gap-1">
+                  <Text className="text-xs text-muted">Pause (Sek.)</Text>
+                  <TextInput
+                    value={exercise.rest.toString()}
+                    onChangeText={(text) => updateExerciseField(index, 'rest', parseInt(text) || 0)}
+                    keyboardType="numeric"
+                    placeholder="10"
+                    className="text-base text-foreground bg-background rounded-lg px-3 py-2 border border-border"
+                    style={{ outlineStyle: 'none' } as any}
+                  />
                 </View>
               </View>
             ))}

@@ -9,7 +9,8 @@ export type UnitSystem = 'metric' | 'imperial';
 
 export interface Exercise {
   name: string;
-  duration: number; // seconds
+  duration?: number; // seconds (optional if reps is used)
+  reps?: number; // repetitions (optional if duration is used)
   rest: number; // seconds pause after exercise
 }
 
