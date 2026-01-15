@@ -49,6 +49,7 @@ export interface UserProfile {
   weight?: number; // kg or lbs depending on unitSystem
   height?: number; // cm or inches depending on unitSystem
   gender?: 'male' | 'female' | 'other';
+  targetWeight?: number; // kg or lbs depending on unitSystem
   weeklyGoal: number; // workouts per week
   theme: ThemeMode;
   notifications: boolean;

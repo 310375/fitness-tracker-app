@@ -134,3 +134,10 @@
 - [x] Gewichtseingabe-Modal im Profil-Screen
 - [x] Gewichtsverlauf-Diagramm (Liniendiagramm)
 - [x] Statistiken (Durchschnitt, Trend, Änderung)
+
+## Zielgewicht-Funktion
+- [x] UserProfile um targetWeight erweitern
+- [x] Zielgewicht-Eingabe im Profil-Screen
+- [x] Fortschrittsbalken im Gewichtsverlauf-Screen
+- [x] Trendberechnung (durchschnittliche Änderung pro Woche)
+- [x] Geschätzte Erreichungszeit basierend auf Trend

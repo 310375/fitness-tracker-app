@@ -198,6 +198,26 @@ export default function ProfileScreen() {
               )}
             </View>
 
+            <View className="gap-2">
+              <Text className="text-sm text-muted">
+                Zielgewicht ({profile.unitSystem === 'metric' ? 'kg' : 'lbs'})
+              </Text>
+              {isEditing ? (
+                <TextInput
+                  value={profile.targetWeight?.toString() || ''}
+                  onChangeText={(text) => setProfile({ ...profile, targetWeight: parseFloat(text) || undefined })}
+                  keyboardType="decimal-pad"
+                  placeholder="65"
+                  className="text-base text-foreground bg-surface rounded-lg px-3 py-2 border border-border"
+                  style={{ outlineStyle: 'none' } as any}
+                />
+              ) : (
+                <Text className="text-base text-foreground">
+                  {profile.targetWeight || '-'} {profile.unitSystem === 'metric' ? 'kg' : 'lbs'}
+                </Text>
+              )}
+            </View>
+
             {isEditing && (
               <Button variant="primary" onPress={handleSave}>
                 Speichern

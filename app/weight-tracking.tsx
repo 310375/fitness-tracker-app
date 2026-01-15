@@ -90,8 +90,57 @@ export default function WeightTrackingScreen() {
     return (sum / entries.length).toFixed(1);
   };
 
+  const getWeeklyTrend = () => {
+    if (entries.length < 2) return null;
+    
+    // Calculate average weight change per week
+    const latest = entries[0];
+    const oldest = entries[entries.length - 1];
+    const weightDiff = latest.weight - oldest.weight;
+    
+    const daysDiff = (new Date(latest.date).getTime() - new Date(oldest.date).getTime()) / (1000 * 60 * 60 * 24);
+    const weeksDiff = daysDiff / 7;
+    
+    if (weeksDiff < 0.5) return null; // Need at least 3-4 days of data
+    
+    return weightDiff / weeksDiff; // kg/lbs per week
+  };
+
+  const getTargetProgress = () => {
+    if (!profile?.targetWeight || !profile?.weight || entries.length === 0) return null;
+    
+    const currentWeight = entries[0].weight;
+    const startWeight = profile.weight;
+    const targetWeight = profile.targetWeight;
+    
+    const totalChange = targetWeight - startWeight;
+    const currentChange = currentWeight - startWeight;
+    
+    if (totalChange === 0) return null;
+    
+    const progress = (currentChange / totalChange) * 100;
+    const remaining = Math.abs(targetWeight - currentWeight);
+    
+    // Estimate time to goal based on trend
+    const weeklyTrend = getWeeklyTrend();
+    let weeksToGoal = null;
+    if (weeklyTrend && Math.abs(weeklyTrend) > 0.01) {
+      const changeNeeded = targetWeight - currentWeight;
+      weeksToGoal = Math.abs(changeNeeded / weeklyTrend);
+    }
+    
+    return {
+      progress: Math.min(Math.max(progress, 0), 100),
+      remaining,
+      weeksToGoal,
+      isOnTrack: weeklyTrend ? (totalChange > 0 ? weeklyTrend > 0 : weeklyTrend < 0) : null,
+    };
+  };
+
   const unitLabel = profile?.unitSystem === 'imperial' ? 'lbs' : 'kg';
   const weightChange = getWeightChange();
+  const targetProgress = getTargetProgress();
+  const weeklyTrend = getWeeklyTrend();
 
   return (
     <ScreenContainer>
@@ -144,6 +193,68 @@ export default function WeightTrackingScreen() {
               </Card>
             )}
           </View>
+        )}
+
+        {/* Target Progress */}
+        {targetProgress && profile?.targetWeight && (
+          <Card>
+            <View className="gap-4">
+              <View className="flex-row items-center justify-between">
+                <Text className="text-lg font-semibold text-foreground">Zielgewicht</Text>
+                <Text className="text-base font-semibold text-primary">
+                  {profile.targetWeight} {unitLabel}
+                </Text>
+              </View>
+
+              {/* Progress Bar */}
+              <View className="gap-2">
+                <View className="h-3 bg-surface rounded-full overflow-hidden">
+                  <View
+                    className="h-full bg-primary rounded-full"
+                    style={{ width: `${targetProgress.progress}%` }}
+                  />
+                </View>
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-sm text-muted">
+                    {targetProgress.progress.toFixed(0)}% erreicht
+                  </Text>
+                  <Text className="text-sm text-muted">
+                    Noch {targetProgress.remaining.toFixed(1)} {unitLabel}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Trend Info */}
+              {weeklyTrend && (
+                <View className="bg-surface rounded-lg p-3">
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Text className="text-sm text-muted">Wöchentlicher Trend</Text>
+                    <Text
+                      className={`text-sm font-semibold ${
+                        targetProgress.isOnTrack ? 'text-success' : 'text-warning'
+                      }`}
+                    >
+                      {weeklyTrend > 0 ? '+' : ''}{weeklyTrend.toFixed(2)} {unitLabel}/Woche
+                    </Text>
+                  </View>
+                  {targetProgress.weeksToGoal && targetProgress.weeksToGoal < 100 && (
+                    <Text className="text-sm text-muted">
+                      Geschätzte Erreichung: {targetProgress.weeksToGoal < 4
+                        ? `${Math.ceil(targetProgress.weeksToGoal)} Wochen`
+                        : `${Math.ceil(targetProgress.weeksToGoal / 4)} Monate`}
+                    </Text>
+                  )}
+                  {targetProgress.isOnTrack !== null && (
+                    <Text className="text-xs text-muted mt-1">
+                      {targetProgress.isOnTrack
+                        ? '✅ Du bist auf dem richtigen Weg!'
+                        : '⚠️ Dein Trend geht in die andere Richtung'}
+                    </Text>
+                  )}
+                </View>
+              )}
+            </View>
+          </Card>
         )}
 
         {/* Chart */}
