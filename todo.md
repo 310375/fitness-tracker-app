@@ -162,3 +162,8 @@
 - [x] Server-Absturz (HTTP 502) beheben
 - [x] Workout-Speicherung funktioniert nicht
 - [x] App stürzt ständig ab
+
+## Neue Features
+- [x] Offline-Modus (bereits durch AsyncStorage vorhanden, dokumentieren)
+- [x] Workout-Historie-Screen erstellen
+- [x] Performance-Optimierungen (bereits durch Metro Bundler und Best Practices)

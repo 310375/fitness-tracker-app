@@ -281,6 +281,13 @@ export default function ProfileScreen() {
               >
                 Gewichtsverlauf anzeigen
               </Button>
+
+              <Button
+                variant="secondary"
+                onPress={() => router.push('/workout-history')}
+              >
+                Workout-Historie anzeigen
+              </Button>
             </View>
           </Card>
         )}
