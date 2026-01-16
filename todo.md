@@ -157,3 +157,8 @@
 - [ ] Automatische Synchronisation bei Änderungen (zu komplex, übersprungen)
 - [ ] Sync-Status-Anzeige im Profil (zu komplex, übersprungen)
 - [x] UI-Integration aller Features im Profil-Screen
+
+## KRITISCHE BUGS
+- [x] Server-Absturz (HTTP 502) beheben
+- [x] Workout-Speicherung funktioniert nicht
+- [x] App stürzt ständig ab

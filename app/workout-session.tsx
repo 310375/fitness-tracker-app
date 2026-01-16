@@ -151,22 +151,27 @@ export default function WorkoutSessionScreen() {
   const completeWorkout = async () => {
     if (!workout) return;
 
-    const durationMinutes = Math.round(totalElapsedTime / 60);
-    const intensity = getWorkoutIntensity(workout.category);
-    const calories = estimateCalories(durationMinutes, intensity);
+    try {
+      const durationMinutes = Math.round(totalElapsedTime / 60);
+      const intensity = getWorkoutIntensity(workout.category);
+      const calories = estimateCalories(durationMinutes, intensity);
 
-    await saveCompletedWorkout({
-      id: `completed-${Date.now()}`,
-      workoutId: workout.id,
-      workoutName: workout.name,
-      date: new Date().toISOString(),
-      duration: durationMinutes,
-      caloriesBurned: calories,
-      exercises: workout.exercises.length,
-    });
+      await saveCompletedWorkout({
+        id: `completed-${Date.now()}`,
+        workoutId: workout.id,
+        workoutName: workout.name,
+        date: new Date().toISOString(),
+        duration: durationMinutes,
+        caloriesBurned: calories,
+        exercises: workout.exercises.length,
+      });
 
-    if (Platform.OS !== 'web') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    } catch (error) {
+      console.error('Error saving completed workout:', error);
+      // Continue anyway to show completion screen
     }
   };
 
