@@ -167,3 +167,8 @@
 - [x] Offline-Modus (bereits durch AsyncStorage vorhanden, dokumentieren)
 - [x] Workout-Historie-Screen erstellen
 - [x] Performance-Optimierungen (bereits durch Metro Bundler und Best Practices)
+
+## Datums-Bug
+- [x] Wöchentliche Aktivität zeigt falsche Wochentage
+- [x] Aktivitäts-Kalender zeigt falsche Tage
+- [x] Datums-Logik überprüfen und korrigieren

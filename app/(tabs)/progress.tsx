@@ -175,7 +175,17 @@ export default function ProgressScreen() {
             {selectedPeriod === 'week' && (
               <View className="gap-2">
                 <View className="flex-row justify-between">
-                  {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day, index) => (
+                  {(() => {
+                    const today = new Date();
+                    const dayLabels = [];
+                    for (let i = 6; i >= 0; i--) {
+                      const date = new Date(today);
+                      date.setDate(today.getDate() - i);
+                      const dayName = date.toLocaleDateString('de-DE', { weekday: 'short' });
+                      dayLabels.push(dayName.charAt(0).toUpperCase() + dayName.slice(1));
+                    }
+                    return dayLabels;
+                  })().map((day, index) => (
                     <View key={day} className="items-center" style={{ width: 40 }}>
                       <View
                         className="w-8 h-8 rounded-lg mb-1"

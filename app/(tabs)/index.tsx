@@ -155,7 +155,17 @@ export default function HomeScreen() {
               Wöchentliche Aktivität
             </Text>
             <View className="flex-row items-end justify-between gap-2 h-24">
-              {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day, index) => {
+              {(() => {
+                const today = new Date();
+                const dayLabels = [];
+                for (let i = 6; i >= 0; i--) {
+                  const date = new Date(today);
+                  date.setDate(today.getDate() - i);
+                  const dayName = date.toLocaleDateString('de-DE', { weekday: 'short' });
+                  dayLabels.push(dayName.charAt(0).toUpperCase() + dayName.slice(1));
+                }
+                return dayLabels;
+              })().map((day, index) => {
                 const workouts = weeklyActivity[index] || 0;
                 const height = maxWorkouts > 0 ? (workouts / maxWorkouts) * 100 : 0;
                 return (
