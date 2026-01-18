@@ -177,3 +177,6 @@
 - [ ] Import-Bestätigung mit Datenzähler hinzufügen
 - [ ] Browser-Cache-Warnung im Profil-Screen
 - [ ] Server-Stabilität verbessern
+
+## Vercel Deployment Issues
+- [ ] Tab-Bar Icons werden auf Vercel nicht angezeigt (Expo Icons nicht kompatibel)

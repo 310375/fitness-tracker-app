@@ -2,7 +2,7 @@ import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { TabIcon } from "@/components/ui/tab-icon";
 import { Platform } from "react-native";
 import { useColors } from "@/hooks/use-colors";
 
@@ -32,28 +32,28 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon size={28} name="home" color={color} />,
         }}
       />
       <Tabs.Screen
         name="workouts"
         options={{
           title: "Workouts",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="figure.run" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon size={28} name="workouts" color={color} />,
         }}
       />
       <Tabs.Screen
         name="progress"
         options={{
           title: "Fortschritt",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chart.bar.fill" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon size={28} name="progress" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profil",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon size={28} name="profile" color={color} />,
         }}
       />
     </Tabs>
