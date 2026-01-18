@@ -20,6 +20,16 @@ export interface BackupData {
   };
 }
 
+export interface ImportResult {
+  success: boolean;
+  itemsRestored: number;
+  workouts: number;
+  completedWorkouts: number;
+  checkIns: number;
+  weightEntries: number;
+  userProfile: boolean;
+}
+
 /**
  * Export all app data as JSON file
  */
@@ -80,7 +90,7 @@ export async function exportData(): Promise<void> {
 /**
  * Import data from JSON file
  */
-export async function importData(): Promise<void> {
+export async function importData(): Promise<ImportResult> {
   try {
     let jsonString: string;
 
@@ -101,8 +111,8 @@ export async function importData(): Promise<void> {
           reader.onload = async (event) => {
             try {
               jsonString = event.target?.result as string;
-              await processImport(jsonString);
-              resolve();
+              const result = await processImport(jsonString);
+              resolve(result);
             } catch (error) {
               reject(error);
             }
@@ -124,7 +134,7 @@ export async function importData(): Promise<void> {
       }
 
       jsonString = await FileSystem.readAsStringAsync(result.assets[0].uri);
-      await processImport(jsonString);
+      return await processImport(jsonString);
     }
   } catch (error) {
     console.error('Error importing data:', error);
@@ -132,7 +142,7 @@ export async function importData(): Promise<void> {
   }
 }
 
-async function processImport(jsonString: string): Promise<void> {
+async function processImport(jsonString: string): Promise<ImportResult> {
   try {
     const backup: BackupData = JSON.parse(jsonString);
     
@@ -140,14 +150,28 @@ async function processImport(jsonString: string): Promise<void> {
       throw new Error('Ungültiges Backup-Format');
     }
 
+    // Count items for result
+    const result: ImportResult = {
+      success: false,
+      itemsRestored: 0,
+      workouts: backup.data.workouts?.length || 0,
+      completedWorkouts: backup.data.completedWorkouts?.length || 0,
+      checkIns: backup.data.checkIns ? 1 : 0,
+      weightEntries: backup.data.weightEntries?.length || 0,
+      userProfile: !!backup.data.userProfile,
+    };
+
     // Restore all data to AsyncStorage
     const items: [string, string][] = [];
     Object.entries(backup.data).forEach(([key, value]) => {
       const fullKey = `@fittrack:${key}`;
       items.push([fullKey, JSON.stringify(value)]);
+      result.itemsRestored++;
     });
 
     await AsyncStorage.multiSet(items);
+    result.success = true;
+    return result;
   } catch (error) {
     console.error('Error processing import:', error);
     throw new Error('Ungültige Backup-Datei');

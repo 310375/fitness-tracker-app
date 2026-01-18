@@ -172,3 +172,8 @@
 - [x] Wöchentliche Aktivität zeigt falsche Wochentage
 - [x] Aktivitäts-Kalender zeigt falsche Tage
 - [x] Datums-Logik überprüfen und korrigieren
+
+## Import-Bestätigung und Warnungen
+- [ ] Import-Bestätigung mit Datenzähler hinzufügen
+- [ ] Browser-Cache-Warnung im Profil-Screen
+- [ ] Server-Stabilität verbessern

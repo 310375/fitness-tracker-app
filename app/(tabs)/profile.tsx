@@ -572,12 +572,13 @@ export default function ProfileScreen() {
                   variant="secondary"
                   onPress={async () => {
                     try {
-                      await importData();
+                      const result = await importData();
                       await loadProfile();
+                      const message = `Daten erfolgreich importiert!\n\nWorkouts: ${result.workouts}\nAbsolvierte Workouts: ${result.completedWorkouts}\nGewichtseinträge: ${result.weightEntries}\nCheck-ins: ${result.checkIns}\nProfil: ${result.userProfile ? 'Ja' : 'Nein'}`;
                       if (Platform.OS === 'web') {
-                        window.alert('Daten wurden erfolgreich importiert');
+                        window.alert(message);
                       } else {
-                        Alert.alert('Erfolg', 'Daten wurden erfolgreich importiert');
+                        Alert.alert('Erfolg', message);
                       }
                     } catch (error) {
                       if (Platform.OS === 'web') {
@@ -605,6 +606,13 @@ export default function ProfileScreen() {
               >
                 Papierkorb anzeigen
               </Button>
+            </View>
+
+            <View className="gap-2 mt-2">
+              <Text className="text-sm font-semibold text-foreground">Browser-Speicher</Text>
+              <Text className="text-sm text-muted">
+                Deine App-Daten werden im Browser-Speicher gespeichert. Wenn du deinen Browser-Cache leerst oder die Website-Daten löschst, gehen ALLE deine Workouts, Check-ins und Fortschritte verloren. Erstelle regelmäßig Backups!
+              </Text>
             </View>
           </View>
         </Card>
