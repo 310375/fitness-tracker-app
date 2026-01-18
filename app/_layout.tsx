@@ -86,15 +86,15 @@ export default function RootLayout() {
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
           {updateAvailable && (
-            <View className="bg-primary px-4 py-3 flex-row items-center justify-between">
-              <Text className="text-sm font-semibold text-background flex-1">
-                Neue Version verfügbar
+            <View className="bg-primary px-3 py-2 flex-row items-center justify-between gap-2">
+              <Text className="text-xs font-semibold text-background flex-1">
+                Update verfügbar
               </Text>
               <Pressable
                 onPress={applyUpdate}
                 style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
               >
-                <Text className="text-sm font-bold text-background">Aktualisieren</Text>
+                <Text className="text-xs font-bold text-background">Laden</Text>
               </Pressable>
             </View>
           )}

@@ -10,6 +10,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { getUserProfile, saveUserProfile, clearAllData, updateWorkoutsToLatest } from '@/lib/storage';
 import { exportData, importData } from '@/lib/backup';
 import type { UserProfile, ThemeMode } from '@/lib/types';
+import { APP_VERSION, BUILD_DATE } from '@/lib/version';
 
 export default function ProfileScreen() {
   const colors = useColors();
@@ -497,7 +498,11 @@ export default function ProfileScreen() {
             <View className="gap-2">
               <View className="flex-row justify-between py-1">
                 <Text className="text-sm text-muted">Version</Text>
-                <Text className="text-sm text-foreground">1.0.0</Text>
+                <Text className="text-sm text-foreground">{APP_VERSION}</Text>
+              </View>
+              <View className="flex-row justify-between py-1">
+                <Text className="text-sm text-muted">Build-Datum</Text>
+                <Text className="text-sm text-foreground">{BUILD_DATE}</Text>
               </View>
               <View className="flex-row justify-between py-1">
                 <Text className="text-sm text-muted">Entwickelt mit</Text>
