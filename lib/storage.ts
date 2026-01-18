@@ -136,6 +136,16 @@ export async function saveCompletedWorkout(workout: CompletedWorkout): Promise<v
   }
 }
 
+export async function deleteCompletedWorkout(workoutId: string): Promise<void> {
+  try {
+    const workouts = await getCompletedWorkouts();
+    const updated = workouts.filter(w => w.id !== workoutId);
+    await AsyncStorage.setItem(KEYS.COMPLETED_WORKOUTS, JSON.stringify(updated));
+  } catch (error) {
+    console.error('Error deleting completed workout:', error);
+  }
+}
+
 // Workouts Library
 export async function getWorkouts(): Promise<Workout[]> {
   try {

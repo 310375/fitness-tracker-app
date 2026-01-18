@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { ScrollView, Text, View, FlatList } from 'react-native';
+import { ScrollView, Text, View, FlatList, Platform, Alert, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
-import { getCompletedWorkouts } from '@/lib/storage';
+import { getCompletedWorkouts, deleteCompletedWorkout } from '@/lib/storage';
 import type { CompletedWorkout } from '@/lib/types';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
@@ -62,6 +62,31 @@ export default function WorkoutHistoryScreen() {
     });
   };
 
+  const handleDelete = async (workout: CompletedWorkout) => {
+    const confirmDelete = () => {
+      deleteCompletedWorkout(workout.id);
+      loadWorkouts();
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm(
+        `Möchtest du das Workout "${workout.workoutName}" wirklich löschen?`
+      );
+      if (confirmed) {
+        confirmDelete();
+      }
+    } else {
+      Alert.alert(
+        'Workout löschen',
+        `Möchtest du das Workout "${workout.workoutName}" wirklich löschen?`,
+        [
+          { text: 'Abbrechen', style: 'cancel' },
+          { text: 'Löschen', style: 'destructive', onPress: confirmDelete },
+        ]
+      );
+    }
+  };
+
   const renderWorkoutItem = ({ item }: { item: CompletedWorkout }) => (
     <View className="bg-surface rounded-2xl p-4 mb-3">
       <View className="flex-row items-start justify-between mb-2">
@@ -73,6 +98,12 @@ export default function WorkoutHistoryScreen() {
             {formatDate(item.date)} • {formatTime(item.date)}
           </Text>
         </View>
+        <Pressable
+          onPress={() => handleDelete(item)}
+          style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+        >
+          <IconSymbol name="house.fill" size={20} color={colors.error} />
+        </Pressable>
       </View>
 
       <View className="flex-row items-center gap-4 mt-3">
