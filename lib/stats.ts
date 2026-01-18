@@ -174,6 +174,80 @@ export function formatCalories(calories: number): string {
 }
 
 /**
+ * Calculate current and longest streak based on completed workouts
+ */
+export function calculateWorkoutStreak(completedWorkouts: CompletedWorkout[]): { currentStreak: number; longestStreak: number } {
+  if (completedWorkouts.length === 0) {
+    return { currentStreak: 0, longestStreak: 0 };
+  }
+
+  // Group workouts by date
+  const workoutsByDate = new Map<string, number>();
+  completedWorkouts.forEach((workout) => {
+    const dateStr = workout.date.split('T')[0];
+    workoutsByDate.set(dateStr, (workoutsByDate.get(dateStr) || 0) + 1);
+  });
+
+  // Get sorted unique dates
+  const sortedDates = Array.from(workoutsByDate.keys()).sort();
+
+  // Calculate streaks
+  let currentStreak = 0;
+  let longestStreak = 0;
+  let tempStreak = 1;
+
+  // Check if today has a workout
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  // Start from the most recent date
+  for (let i = sortedDates.length - 1; i >= 0; i--) {
+    const currentDate = new Date(sortedDates[i]);
+    const nextDate = i > 0 ? new Date(sortedDates[i - 1]) : null;
+
+    if (i === sortedDates.length - 1) {
+      // First iteration - check if it's today or yesterday
+      if (sortedDates[i] === today || sortedDates[i] === yesterdayStr) {
+        tempStreak = 1;
+      } else {
+        // Most recent workout is not today or yesterday, so current streak is 0
+        tempStreak = 0;
+        break;
+      }
+    } else if (nextDate) {
+      const diffDays = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) {
+        tempStreak++;
+      } else {
+        break;
+      }
+    }
+  }
+
+  currentStreak = tempStreak;
+
+  // Calculate longest streak
+  tempStreak = 1;
+  for (let i = sortedDates.length - 1; i > 0; i--) {
+    const currentDate = new Date(sortedDates[i]);
+    const nextDate = new Date(sortedDates[i - 1]);
+    const diffDays = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
+      tempStreak++;
+    } else {
+      longestStreak = Math.max(longestStreak, tempStreak);
+      tempStreak = 1;
+    }
+  }
+  longestStreak = Math.max(longestStreak, tempStreak);
+
+  return { currentStreak, longestStreak };
+}
+
+/**
  * Get workout intensity level based on category
  */
 export function getWorkoutIntensity(category: string): 'low' | 'moderate' | 'high' {

@@ -12,7 +12,7 @@ import {
   getCompletedWorkouts,
   getUserProfile,
 } from '@/lib/storage';
-import { getLastNDaysActivity } from '@/lib/stats';
+import { getLastNDaysActivity, calculateWorkoutStreak } from '@/lib/stats';
 import type { CheckInData, CompletedWorkout, UserProfile } from '@/lib/types';
 
 export default function HomeScreen() {
@@ -23,6 +23,7 @@ export default function HomeScreen() {
   const [weeklyActivity, setWeeklyActivity] = useState<number[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [todayWorkouts, setTodayWorkouts] = useState(0);
+  const [workoutStreak, setWorkoutStreak] = useState({ currentStreak: 0, longestStreak: 0 });
 
   const loadData = useCallback(async () => {
     try {
@@ -45,6 +46,10 @@ export default function HomeScreen() {
         (w) => w.date.split('T')[0] === today
       ).length;
       setTodayWorkouts(todayCount);
+
+      // Calculate workout streak
+      const streak = calculateWorkoutStreak(completedWorkouts);
+      setWorkoutStreak(streak);
     } catch (error) {
       console.error('Error loading data:', error);
     }
@@ -103,14 +108,14 @@ export default function HomeScreen() {
               <View className="flex-row items-center gap-2">
                 <IconSymbol name="flame.fill" size={28} color={colors.primary} />
                 <Text className="text-2xl font-bold text-foreground">
-                  {checkInData?.currentStreak || 0}
+                  {workoutStreak.currentStreak}
                 </Text>
                 <Text className="text-base text-muted">Tage Streak</Text>
               </View>
               <Text className="text-sm text-muted">
-                {hasCheckedInToday
-                  ? '✓ Heute bereits eingecheckt'
-                  : 'Checke heute ein, um deine Streak fortzusetzen!'}
+                {workoutStreak.currentStreak > 0
+                  ? 'Weiter so! 💪'
+                  : 'Starte dein erstes Workout heute!'}
               </Text>
             </View>
             {!hasCheckedInToday && (

@@ -13,6 +13,7 @@ import {
   getLastNDaysActivity,
   formatDuration,
   formatCalories,
+  calculateWorkoutStreak,
 } from '@/lib/stats';
 import type { CompletedWorkout, CheckInData } from '@/lib/types';
 
@@ -53,10 +54,11 @@ export default function ProgressScreen() {
     );
   };
 
+  const workoutStreak = calculateWorkoutStreak(completedWorkouts);
   const stats = calculateWorkoutStats(
     completedWorkouts,
-    checkInData?.currentStreak || 0,
-    checkInData?.longestStreak || 0
+    workoutStreak.currentStreak,
+    workoutStreak.longestStreak
   );
 
   const periods: { id: TimePeriod; label: string }[] = [
