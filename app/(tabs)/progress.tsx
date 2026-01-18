@@ -1,68 +1,38 @@
-import { ScrollView, Text, View, Pressable } from 'react-native';
-import { useState, useEffect, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { ScrollView, Text, View, Pressable, RefreshControl } from 'react-native';
+import { useState, useMemo } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { Card } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
 import { useColors } from '@/hooks/use-colors';
-import {
-  getCompletedWorkouts,
-  getCheckInData,
-} from '@/lib/storage';
+import { useWorkout } from '@/lib/workout-context';
 import {
   calculateWorkoutStats,
   getLastNDaysActivity,
   formatDuration,
   formatCalories,
-  calculateWorkoutStreak,
 } from '@/lib/stats';
-import type { CompletedWorkout, CheckInData } from '@/lib/types';
 
 type TimePeriod = 'week' | 'month' | 'year';
 
 export default function ProgressScreen() {
   const colors = useColors();
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('week');
-  const [completedWorkouts, setCompletedWorkouts] = useState<CompletedWorkout[]>([]);
-  const [checkInData, setCheckInData] = useState<CheckInData | null>(null);
-  const [heatmapData, setHeatmapData] = useState<{ date: string; count: number }[]>([]);
+  const {
+    completedWorkouts,
+    workoutStreak,
+    isLoading,
+    refreshData,
+  } = useWorkout();
 
-  const loadData = useCallback(async () => {
-    const [workouts, checkIns] = await Promise.all([
-      getCompletedWorkouts(),
-      getCheckInData(),
-    ]);
-    setCompletedWorkouts(workouts);
-    setCheckInData(checkIns);
-  }, []);
-
-  const generateHeatmapData = useCallback(() => {
+  const heatmapData = useMemo(() => {
     const days = selectedPeriod === 'week' ? 7 : selectedPeriod === 'month' ? 30 : 365;
     const activity = getLastNDaysActivity(completedWorkouts, days);
-    setHeatmapData(
-      activity.map((day) => ({
-        date: day.date,
-        count: day.workouts,
-      }))
-    );
+    return activity.map((day) => ({
+      date: day.date,
+      count: day.workouts,
+    }));
   }, [completedWorkouts, selectedPeriod]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  // Reload data when the screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData])
-  );
-
-  useEffect(() => {
-    generateHeatmapData();
-  }, [generateHeatmapData]);
-
-  const workoutStreak = calculateWorkoutStreak(completedWorkouts);
   const stats = calculateWorkoutStats(
     completedWorkouts,
     workoutStreak.currentStreak,
@@ -84,7 +54,12 @@ export default function ProgressScreen() {
 
   return (
     <ScreenContainer>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 20, gap: 16 }}>
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 20, gap: 16 }}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={refreshData} tintColor={colors.primary} />
+        }
+      >
         {/* Header */}
         <Text className="text-3xl font-bold text-foreground mb-2">
           Fortschritt

@@ -1,86 +1,26 @@
 import { ScrollView, Text, View, RefreshControl } from 'react-native';
-import { useState, useEffect, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { useMemo } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
 import { useRouter } from 'expo-router';
-import {
-  getCheckInData,
-  performCheckIn,
-  getCompletedWorkouts,
-  getUserProfile,
-} from '@/lib/storage';
-import { getLastNDaysActivity, calculateWorkoutStreak } from '@/lib/stats';
-import type { CheckInData, CompletedWorkout, UserProfile } from '@/lib/types';
+import { useWorkout } from '@/lib/workout-context';
 
 export default function HomeScreen() {
   const colors = useColors();
   const router = useRouter();
-  const [checkInData, setCheckInData] = useState<CheckInData | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [weeklyActivity, setWeeklyActivity] = useState<number[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
-  const [todayWorkouts, setTodayWorkouts] = useState(0);
-  const [workoutStreak, setWorkoutStreak] = useState({ currentStreak: 0, longestStreak: 0 });
-
-  const loadData = useCallback(async () => {
-    try {
-      const [checkIns, profile, completedWorkouts] = await Promise.all([
-        getCheckInData(),
-        getUserProfile(),
-        getCompletedWorkouts(),
-      ]);
-
-      setCheckInData(checkIns);
-      setUserProfile(profile);
-
-      // Get last 7 days activity for weekly chart
-      const lastWeek = getLastNDaysActivity(completedWorkouts, 7);
-      setWeeklyActivity(lastWeek.map((day) => day.workouts));
-
-      // Count today's workouts
-      const today = new Date().toISOString().split('T')[0];
-      const todayCount = completedWorkouts.filter(
-        (w) => w.date.split('T')[0] === today
-      ).length;
-      setTodayWorkouts(todayCount);
-
-      // Calculate workout streak
-      const streak = calculateWorkoutStreak(completedWorkouts);
-      setWorkoutStreak(streak);
-    } catch (error) {
-      console.error('Error loading data:', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  // Reload data when the screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData])
-  );
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
-  }, [loadData]);
-
-  const handleCheckIn = async () => {
-    try {
-      const updatedData = await performCheckIn();
-      setCheckInData(updatedData);
-    } catch (error) {
-      console.error('Error performing check-in:', error);
-    }
-  };
+  const {
+    checkInData,
+    userProfile,
+    weeklyActivity,
+    todayWorkouts,
+    workoutStreak,
+    isLoading,
+    refreshData,
+    performCheckIn,
+  } = useWorkout();
 
   const today = new Date().toISOString().split('T')[0];
   const hasCheckedInToday = checkInData?.checkIns.includes(today) || false;
@@ -91,14 +31,14 @@ export default function HomeScreen() {
     month: 'long',
   });
 
-  const maxWorkouts = Math.max(...weeklyActivity, 1);
+  const maxWorkouts = useMemo(() => Math.max(...weeklyActivity, 1), [weeklyActivity]);
 
   return (
     <ScreenContainer>
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 20, gap: 16 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+          <RefreshControl refreshing={isLoading} onRefresh={refreshData} tintColor={colors.primary} />
         }
       >
         {/* Hero Section */}
@@ -114,7 +54,7 @@ export default function HomeScreen() {
           <View className="flex-row items-center justify-between">
             <View className="flex-1 gap-2">
               <View className="flex-row items-center gap-2">
-                <IconSymbol name="flame.fill" size={28} color={colors.primary} />
+                <IconSymbol name="house.fill" size={28} color={colors.primary} />
                 <Text className="text-2xl font-bold text-foreground">
                   {workoutStreak.currentStreak}
                 </Text>
@@ -130,7 +70,7 @@ export default function HomeScreen() {
               <Button
                 variant="primary"
                 size="md"
-                onPress={handleCheckIn}
+                onPress={performCheckIn}
                 className="ml-2"
               >
                 Check-in
@@ -157,44 +97,6 @@ export default function HomeScreen() {
                   width: `${Math.min((todayWorkouts / (userProfile?.weeklyGoal || 3)) * 100, 100)}%`,
                 }}
               />
-            </View>
-          </View>
-        </Card>
-
-        {/* Weekly Activity Chart */}
-        <Card>
-          <View className="gap-3">
-            <Text className="text-lg font-semibold text-foreground">
-              Wöchentliche Aktivität
-            </Text>
-            <View className="flex-row items-end justify-between gap-2 h-24">
-              {(() => {
-                const today = new Date();
-                const dayLabels = [];
-                for (let i = 6; i >= 0; i--) {
-                  const date = new Date(today);
-                  date.setDate(today.getDate() - i);
-                  const dayName = date.toLocaleDateString('de-DE', { weekday: 'short' });
-                  dayLabels.push(dayName.charAt(0).toUpperCase() + dayName.slice(1));
-                }
-                return dayLabels;
-              })().map((day, index) => {
-                const workouts = weeklyActivity[index] || 0;
-                const height = maxWorkouts > 0 ? (workouts / maxWorkouts) * 100 : 0;
-                return (
-                  <View key={day} className="flex-1 items-center gap-2">
-                    <View className="flex-1 w-full justify-end">
-                      <View
-                        className="w-full bg-primary rounded-t-lg"
-                        style={{
-                          height: `${Math.max(height, workouts > 0 ? 10 : 0)}%`,
-                        }}
-                      />
-                    </View>
-                    <Text className="text-xs text-muted">{day}</Text>
-                  </View>
-                );
-              })}
             </View>
           </View>
         </Card>
