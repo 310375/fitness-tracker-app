@@ -1,5 +1,6 @@
 import { ScrollView, Text, View, RefreshControl } from 'react-native';
 import { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { ScreenContainer } from '@/components/screen-container';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -58,6 +59,13 @@ export default function HomeScreen() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Reload data when the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

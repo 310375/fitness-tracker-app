@@ -1,5 +1,6 @@
 import { ScrollView, Text, View, Pressable } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { ScreenContainer } from '@/components/screen-container';
 import { Card } from '@/components/ui/card';
 import { StatCard } from '@/components/ui/stat-card';
@@ -26,24 +27,16 @@ export default function ProgressScreen() {
   const [checkInData, setCheckInData] = useState<CheckInData | null>(null);
   const [heatmapData, setHeatmapData] = useState<{ date: string; count: number }[]>([]);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    generateHeatmapData();
-  }, [completedWorkouts, selectedPeriod]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     const [workouts, checkIns] = await Promise.all([
       getCompletedWorkouts(),
       getCheckInData(),
     ]);
     setCompletedWorkouts(workouts);
     setCheckInData(checkIns);
-  };
+  }, []);
 
-  const generateHeatmapData = () => {
+  const generateHeatmapData = useCallback(() => {
     const days = selectedPeriod === 'week' ? 7 : selectedPeriod === 'month' ? 30 : 365;
     const activity = getLastNDaysActivity(completedWorkouts, days);
     setHeatmapData(
@@ -52,7 +45,22 @@ export default function ProgressScreen() {
         count: day.workouts,
       }))
     );
-  };
+  }, [completedWorkouts, selectedPeriod]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Reload data when the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
+
+  useEffect(() => {
+    generateHeatmapData();
+  }, [generateHeatmapData]);
 
   const workoutStreak = calculateWorkoutStreak(completedWorkouts);
   const stats = calculateWorkoutStats(

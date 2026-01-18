@@ -14,36 +14,16 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useSystemColorScheme() ?? "light";
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>(systemScheme);
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load saved theme on mount
-  useEffect(() => {
-    const loadTheme = async () => {
-      try {
-        const { getUserProfile } = await import("@/lib/storage");
-        const profile = await getUserProfile();
-        if (profile?.theme && profile.theme !== "system") {
-          setColorSchemeState(profile.theme as ColorScheme);
-          applyScheme(profile.theme as ColorScheme);
-        } else {
-          applyScheme(systemScheme);
-        }
-      } catch (error) {
-        console.log("Error loading theme:", error);
-        applyScheme(systemScheme);
-      }
-      setIsInitialized(true);
-    };
-    loadTheme();
-  }, []);
-
+  // Apply scheme immediately
   const applyScheme = useCallback((scheme: ColorScheme) => {
     nativewindColorScheme.set(scheme);
-    Appearance.setColorScheme?.(scheme);
+    
     if (typeof document !== "undefined") {
       const root = document.documentElement;
       root.dataset.theme = scheme;
       root.classList.toggle("dark", scheme === "dark");
+      
       const palette = SchemeColors[scheme];
       Object.entries(palette).forEach(([token, value]) => {
         root.style.setProperty(`--color-${token}`, value);
@@ -55,15 +35,34 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     (scheme: ColorScheme) => {
       setColorSchemeState(scheme);
       applyScheme(scheme);
+      
+      // Save to localStorage for persistence
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("theme-preference", scheme);
+      }
     },
     [applyScheme],
   );
 
+  // Load saved theme on mount
   useEffect(() => {
-    if (isInitialized) {
-      applyScheme(colorScheme);
+    if (typeof localStorage !== "undefined") {
+      const saved = localStorage.getItem("theme-preference") as ColorScheme | null;
+      if (saved && (saved === "light" || saved === "dark" || saved === "system")) {
+        setColorSchemeState(saved);
+        applyScheme(saved);
+      } else {
+        applyScheme(systemScheme);
+      }
+    } else {
+      applyScheme(systemScheme);
     }
-  }, [applyScheme, colorScheme, isInitialized]);
+  }, [applyScheme, systemScheme]);
+
+  // Apply scheme when it changes
+  useEffect(() => {
+    applyScheme(colorScheme);
+  }, [colorScheme, applyScheme]);
 
   const themeVariables = useMemo(
     () =>
