@@ -14,6 +14,28 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useSystemColorScheme() ?? "light";
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>(systemScheme);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Load saved theme on mount
+  useEffect(() => {
+    const loadTheme = async () => {
+      try {
+        const { getUserProfile } = await import("@/lib/storage");
+        const profile = await getUserProfile();
+        if (profile?.theme && profile.theme !== "system") {
+          setColorSchemeState(profile.theme as ColorScheme);
+          applyScheme(profile.theme as ColorScheme);
+        } else {
+          applyScheme(systemScheme);
+        }
+      } catch (error) {
+        console.log("Error loading theme:", error);
+        applyScheme(systemScheme);
+      }
+      setIsInitialized(true);
+    };
+    loadTheme();
+  }, []);
 
   const applyScheme = useCallback((scheme: ColorScheme) => {
     nativewindColorScheme.set(scheme);
@@ -29,14 +51,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const setColorScheme = useCallback((scheme: ColorScheme) => {
-    setColorSchemeState(scheme);
-    applyScheme(scheme);
-  }, [applyScheme]);
+  const setColorScheme = useCallback(
+    (scheme: ColorScheme) => {
+      setColorSchemeState(scheme);
+      applyScheme(scheme);
+    },
+    [applyScheme],
+  );
 
   useEffect(() => {
-    applyScheme(colorScheme);
-  }, [applyScheme, colorScheme]);
+    if (isInitialized) {
+      applyScheme(colorScheme);
+    }
+  }, [applyScheme, colorScheme, isInitialized]);
 
   const themeVariables = useMemo(
     () =>
@@ -61,7 +88,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }),
     [colorScheme, setColorScheme],
   );
-  console.log(value, themeVariables)
 
   return (
     <ThemeContext.Provider value={value}>
